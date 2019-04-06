@@ -2,7 +2,8 @@
     "name": "now-server",
     "version": "1.0.0",
     "scripts": {
-        "start": "node src/server.js"
+        "start": "node src/server.js",
+        "test": "jest"
     },
     "dependencies": {
         "body-parser": "^1.18.3",
@@ -15,5 +16,8 @@
         "env": {
             "es6": true
         }
+    },
+    "devDependencies": {
+        "jest": "^24.7.1"
     }
 }
