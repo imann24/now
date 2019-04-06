@@ -1,0 +1,19 @@
+{
+    "name": "now-server",
+    "version": "1.0.0",
+    "scripts": {
+        "start": "node src/server.js"
+    },
+    "dependencies": {
+        "body-parser": "^1.18.3",
+        "express": "^4.16.4"
+    },
+    "eslintConfig": {
+        "parserOptions": {
+            "ecmaVersion": 2017
+        },
+        "env": {
+            "es6": true
+        }
+    }
+}
