@@ -1,8 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
+const io = require('socket.io')();
 const app = express();
 const port = process.env.PORT || 5000;
+const ioPort = 8000;
 const clientDir = '../../client/build'
 
 app.use(bodyParser.json());
@@ -30,3 +32,12 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
+
+io.listen(ioPort);
+
+io.on('connection', socket => {
+     socket.on('chat', state => {
+          console.log(state);
+          socket.broadcast.emit('chat', state);
+     });
+});

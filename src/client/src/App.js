@@ -1,65 +1,79 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import openSocket from 'socket.io-client';
 
 class App extends Component {
+    socket = openSocket('http://localhost:8000');
     state = {
-        response: '',
         post: '',
-        responseToPost: '',
+        conversation: [],
     };
     componentDidMount() {
-        this.callApi()
-            .then(res => this.setState({ response: res.express }))
-            .catch(err => console.log(err));
-    }
-    callApi = async () => {
-        const response = await fetch('/api/hello');
-        const body = await response.json();
-        if (response.status !== 200) throw Error(body.message);
-            return body;
-    };
-    handleSubmit = async e => {
-        e.preventDefault();
-        const response = await fetch('/api/world', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ post: this.state.post }),
+        this.socket.on('chat', (data) => {
+             const lastElementIdx = this.state.conversation.length - 1;
+             const mostRecentMessage = this.state.conversation[lastElementIdx];
+             if (mostRecentMessage && mostRecentMessage.startsWith("YOU")) {
+                  this.setState(prevState => ({
+                       conversation: [...prevState.conversation.slice(0, lastElementIdx), mostRecentMessage.concat(" " + data)]
+                  }));
+             } else {
+                  this.setState(prevState => ({
+                       conversation: [...prevState.conversation, "YOU: " + data]
+                  }));
+             }
         });
-        const body = await response.text();
-        this.setState({ responseToPost: body });
+    }
+    onKeyPress = event => {
+         if (event.key == " ") {
+              if (this.state.post == " ") {
+                   this.setState({post: ""})
+              } else {
+                   this.handleSubmit();
+              }
+         }
+    }
+    handleSubmit = async e => {
+        if (e) {
+             e.preventDefault();
+        }
+        const lastElementIdx = this.state.conversation.length - 1;
+        const mostRecentMessage = this.state.conversation[lastElementIdx];
+        if (mostRecentMessage && mostRecentMessage.startsWith("ME")) {
+             this.setState(prevState => ({
+                  conversation: [...prevState.conversation.slice(0, lastElementIdx), mostRecentMessage.concat(" " + this.state.post)]
+             }));
+        } else {
+             this.setState(prevState => ({
+                  conversation: [...prevState.conversation, "ME: " + this.state.post]
+             }));
+        }
+        this.socket.emit('chat', this.state.post);
+        this.setState({post: ""})
     };
     render() {
         return (
           <div className="App">
             <header className="App-header">
               <img src={logo} className="App-logo" alt="logo" />
-              <p>
-                Edit <code>src/App.js</code> and save to reload.
-              </p>
-              <a
-                className="App-link"
-                href="https://reactjs.org"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Learn React
-              </a>
             </header>
-            <p>{this.state.response}</p>
             <form onSubmit={this.handleSubmit}>
                 <p>
-                    <strong>Post to Server:</strong>
+                    <strong>Say Something:</strong>
                 </p>
                 <input
                     type="text"
                     value={this.state.post}
+                    onKeyPress={this.onKeyPress}
                     onChange={e => this.setState({ post: e.target.value })}/>
-                <button type="submit">Submit</button>
             </form>
-            <p>{this.state.responseToPost}</p>
+            {this.state.conversation.slice().reverse().map((value, index) => {
+                 if (value.startsWith("YOU: ")) {
+                      return <p key={index}><b>YOU: </b>{value}</p>
+                 } else if (value.startsWith("ME: ", "")) {
+                      return <p key={index}><b>ME: </b>{value.replace("ME: ", "")}</p>
+                 }
+            })}
           </div>
         );
     }
