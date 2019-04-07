@@ -4,7 +4,12 @@ import './App.css';
 import openSocket from 'socket.io-client';
 
 class App extends Component {
-    socket = openSocket('http://localhost:8000');
+     socket = openSocket(window.location.protocol + "//" + window.location.hostname + ":8000");
+    // if (window.location.href.contains("localhost")) {
+    //
+    // } else if (window.location.hrefelse {
+    //      socket = openSocket(window.location.href + ":" + 8000');
+    // }
     state = {
         post: '',
         conversation: [],

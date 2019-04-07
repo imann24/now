@@ -35,9 +35,10 @@ app.listen(port, () => console.log(`Listening on port ${port}`));
 
 io.listen(ioPort);
 
+io.set("origins", "*:*");
+
 io.on('connection', socket => {
      socket.on('chat', state => {
-          console.log(state);
           socket.broadcast.emit('chat', state);
      });
 });
