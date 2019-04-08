@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import openSocket from 'socket.io-client';
+import io from 'socket.io-client';
 
 class App extends Component {
-     socket = openSocket(window.location.protocol + "//" + window.location.hostname + ":8000");
+     socket = io()
     // if (window.location.href.contains("localhost")) {
     //
     // } else if (window.location.hrefelse {
@@ -74,7 +74,7 @@ class App extends Component {
             </form>
             {this.state.conversation.slice().reverse().map((value, index) => {
                  if (value.startsWith("YOU: ")) {
-                      return <p key={index}><b>YOU: </b>{value}</p>
+                      return <p key={index}><b>YOU: </b>{value.replace("YOU: ", "")}</p>
                  } else if (value.startsWith("ME: ", "")) {
                       return <p key={index}><b>ME: </b>{value.replace("ME: ", "")}</p>
                  }
