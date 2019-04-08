@@ -5,11 +5,6 @@ import io from 'socket.io-client';
 
 class App extends Component {
      socket = io()
-    // if (window.location.href.contains("localhost")) {
-    //
-    // } else if (window.location.hrefelse {
-    //      socket = openSocket(window.location.href + ":" + 8000');
-    // }
     state = {
         post: '',
         conversation: [],
