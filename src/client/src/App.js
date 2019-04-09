@@ -1,27 +1,27 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import io from 'socket.io-client';
+import Socket from './socket'
 
 class App extends Component {
-     socket = io()
+    socket = new Socket()
     state = {
         post: '',
         conversation: [],
     };
     componentDidMount() {
-        this.socket.on('chat', (data) => {
-             const lastElementIdx = this.state.conversation.length - 1;
-             const mostRecentMessage = this.state.conversation[lastElementIdx];
-             if (mostRecentMessage && mostRecentMessage.startsWith("YOU")) {
-                  this.setState(prevState => ({
-                       conversation: [...prevState.conversation.slice(0, lastElementIdx), mostRecentMessage.concat(" " + data)]
-                  }));
-             } else {
-                  this.setState(prevState => ({
-                       conversation: [...prevState.conversation, "YOU: " + data]
-                  }));
-             }
+        this.socket.subscribeToMessages((data) => {
+            const lastElementIdx = this.state.conversation.length - 1;
+            const mostRecentMessage = this.state.conversation[lastElementIdx];
+            if (mostRecentMessage && mostRecentMessage.startsWith("YOU")) {
+                this.setState(prevState => ({
+                    conversation: [...prevState.conversation.slice(0, lastElementIdx), mostRecentMessage.concat(" " + data)]
+                }));
+            } else {
+                this.setState(prevState => ({
+                    conversation: [...prevState.conversation, "YOU: " + data]
+                }));
+            }
         });
     }
     onKeyPress = event => {
@@ -48,7 +48,7 @@ class App extends Component {
                   conversation: [...prevState.conversation, "ME: " + this.state.post]
              }));
         }
-        this.socket.emit('chat', this.state.post);
+        this.socket.sendMessage(this.state.post);
         this.setState({post: ""})
     };
     render() {
