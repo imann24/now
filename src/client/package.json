@@ -24,5 +24,8 @@
         "not op_mini all"
     ],
     "proxy": "http://localhost:5000",
-    "homepage": "https://chat-app-now.herokuapp.com"
+    "homepage": "https://chat-app-now.herokuapp.com",
+    "devDependencies": {
+        "sinon": "^7.3.1"
+    }
 }
