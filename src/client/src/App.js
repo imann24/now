@@ -2,32 +2,26 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import Socket from './socket'
+import {Conversation, Message, Sender} from './message'
 
 class App extends Component {
     socket = new Socket()
     state = {
-        post: '',
-        conversation: [],
-    };
+        text: '',
+        user: new Sender(prompt("What's your name?")),
+        conversation: new Conversation(),
+    }
     componentDidMount() {
         this.socket.subscribeToMessages((data) => {
-            const lastElementIdx = this.state.conversation.length - 1;
-            const mostRecentMessage = this.state.conversation[lastElementIdx];
-            if (mostRecentMessage && mostRecentMessage.startsWith("YOU")) {
-                this.setState(prevState => ({
-                    conversation: [...prevState.conversation.slice(0, lastElementIdx), mostRecentMessage.concat(" " + data)]
-                }));
-            } else {
-                this.setState(prevState => ({
-                    conversation: [...prevState.conversation, "YOU: " + data]
-                }));
-            }
+            this.setState(previouState => ({
+                state: previouState.conversation.addMessage(data)
+            }));
         });
     }
     onKeyPress = event => {
          if (event.key == " ") {
-              if (this.state.post == " ") {
-                   this.setState({post: ""})
+              if (this.state.text == " ") {
+                   this.setState({text: ""})
               } else {
                    this.handleSubmit();
               }
@@ -37,19 +31,12 @@ class App extends Component {
         if (e) {
              e.preventDefault();
         }
-        const lastElementIdx = this.state.conversation.length - 1;
-        const mostRecentMessage = this.state.conversation[lastElementIdx];
-        if (mostRecentMessage && mostRecentMessage.startsWith("ME")) {
-             this.setState(prevState => ({
-                  conversation: [...prevState.conversation.slice(0, lastElementIdx), mostRecentMessage.concat(" " + this.state.post)]
-             }));
-        } else {
-             this.setState(prevState => ({
-                  conversation: [...prevState.conversation, "ME: " + this.state.post]
-             }));
-        }
-        this.socket.sendMessage(this.state.post);
-        this.setState({post: ""})
+        let newMessage = new Message(this.state.user, this.state.text)
+        this.setState(previousState => ({
+            text: "",
+            conversation: previousState.conversation.addMessage(newMessage),
+        }));
+        this.socket.sendMessage(newMessage);
     };
     render() {
         return (
@@ -63,16 +50,12 @@ class App extends Component {
                 </p>
                 <input
                     type="text"
-                    value={this.state.post}
+                    value={this.state.text}
                     onKeyPress={this.onKeyPress}
-                    onChange={e => this.setState({ post: e.target.value })}/>
+                    onChange={e => this.setState({ text: e.target.value })}/>
             </form>
-            {this.state.conversation.slice().reverse().map((value, index) => {
-                 if (value.startsWith("YOU: ")) {
-                      return <p key={index}><b>YOU: </b>{value.replace("YOU: ", "")}</p>
-                 } else if (value.startsWith("ME: ", "")) {
-                      return <p key={index}><b>ME: </b>{value.replace("ME: ", "")}</p>
-                 }
+            {this.state.conversation.messages.slice().reverse().map((value, index) => {
+                  return <p key={index}><b>{value.sender.name}: </b>{value.text}</p>
             })}
           </div>
         );
