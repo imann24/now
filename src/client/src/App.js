@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import logo from './logo.png';
 import './App.css';
 import Socket from './socket'
 import {Conversation, Message, Sender} from './message'
@@ -42,7 +42,8 @@ class App extends Component {
         return (
           <div className="App">
             <header className="App-header">
-              <img src={logo} className="App-logo" alt="logo" />
+              <img src={logo} alt="logo" />
+	      <p>Welcome to ChatNow, {JSON.stringify(this.state.user.name)}</p>
             </header>
             <form onSubmit={this.handleSubmit}>
                 <p>
