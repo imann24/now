@@ -1,8 +1,10 @@
+const port = process.env.PORT || 5000;
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const app = express();
-const port = process.env.PORT || 5000;
+const server = app.listen(port, () => console.log(`Listening on port ${port}`));
+const io = require('socket.io')(server);
 const clientDir = '../../client/build'
 
 app.use(bodyParser.json());
@@ -29,4 +31,10 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-app.listen(port, () => console.log(`Listening on port ${port}`));
+io.set("origins", "*:*");
+
+io.on('connection', socket => {
+     socket.on('chat', state => {
+          socket.broadcast.emit('chat', state);
+     });
+});

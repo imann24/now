@@ -1,65 +1,62 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import Socket from './socket'
+import {Conversation, Message, Sender} from './message'
 
 class App extends Component {
+    socket = new Socket()
     state = {
-        response: '',
-        post: '',
-        responseToPost: '',
-    };
-    componentDidMount() {
-        this.callApi()
-            .then(res => this.setState({ response: res.express }))
-            .catch(err => console.log(err));
+        text: '',
+        user: new Sender(prompt("What's your name?")),
+        conversation: new Conversation(),
     }
-    callApi = async () => {
-        const response = await fetch('/api/hello');
-        const body = await response.json();
-        if (response.status !== 200) throw Error(body.message);
-            return body;
-    };
-    handleSubmit = async e => {
-        e.preventDefault();
-        const response = await fetch('/api/world', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ post: this.state.post }),
+    componentDidMount() {
+        this.socket.subscribeToMessages((data) => {
+            this.setState(previouState => ({
+                state: previouState.conversation.addMessage(data)
+            }));
         });
-        const body = await response.text();
-        this.setState({ responseToPost: body });
+    }
+    onKeyPress = event => {
+         if (event.key == " ") {
+              if (this.state.text == " ") {
+                   this.setState({text: ""})
+              } else {
+                   this.handleSubmit();
+              }
+         }
+    }
+    handleSubmit = async e => {
+        if (e) {
+             e.preventDefault();
+        }
+        let newMessage = new Message(this.state.user, this.state.text)
+        this.setState(previousState => ({
+            text: "",
+            conversation: previousState.conversation.addMessage(newMessage),
+        }));
+        this.socket.sendMessage(newMessage);
     };
     render() {
         return (
           <div className="App">
             <header className="App-header">
               <img src={logo} className="App-logo" alt="logo" />
-              <p>
-                Edit <code>src/App.js</code> and save to reload.
-              </p>
-              <a
-                className="App-link"
-                href="https://reactjs.org"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Learn React
-              </a>
             </header>
-            <p>{this.state.response}</p>
             <form onSubmit={this.handleSubmit}>
                 <p>
-                    <strong>Post to Server:</strong>
+                    <strong>Say Something:</strong>
                 </p>
                 <input
                     type="text"
-                    value={this.state.post}
-                    onChange={e => this.setState({ post: e.target.value })}/>
-                <button type="submit">Submit</button>
+                    value={this.state.text}
+                    onKeyPress={this.onKeyPress}
+                    onChange={e => this.setState({ text: e.target.value })}/>
             </form>
-            <p>{this.state.responseToPost}</p>
+            {this.state.conversation.messages.slice().reverse().map((value, index) => {
+                  return <p key={index}><b>{value.sender.name}: </b>{value.text}</p>
+            })}
           </div>
         );
     }
