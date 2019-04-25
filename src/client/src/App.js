@@ -3,13 +3,48 @@ import logo from './logo.png';
 import './App.css';
 import Socket from './socket'
 import {Conversation, Message, Sender} from './message'
+import ChatBubble from './ChatBubble'
 
 class App extends Component {
     socket = new Socket()
-    state = {
+    state = 
+    {
         text: '',
         user: new Sender(prompt("What's your name?")),
         conversation: new Conversation(),
+	messages:
+	[
+	{
+       	 	"type" : 0,
+		"image" : "https://www.verdehomes.com.au/wp-content/uploads/2017/11/default_bio_600x600.jpg",
+        	"text": "Hello! Good Morning!"
+    	},
+	{
+        	"type": 1,
+		"image" : "https://www.verdehomes.com.au/wp-content/uploads/2017/11/default_bio_600x600.jpg",
+        	"text": "Hello! Good Afternoon!"
+    	},
+	{
+       	 	"type" : 0,
+		"image" : "https://www.verdehomes.com.au/wp-content/uploads/2017/11/default_bio_600x600.jpg",
+        	"text": "Hello! Good Morning!"
+    	},
+	{
+        	"type": 1,
+		"image" : "https://www.verdehomes.com.au/wp-content/uploads/2017/11/default_bio_600x600.jpg",
+        	"text": "Hello! Good Afternoon!"
+    	},
+	{
+       	 	"type" : 0,
+		"image" : "https://www.verdehomes.com.au/wp-content/uploads/2017/11/default_bio_600x600.jpg",
+        	"text": "Hello! Good Morning!"
+    	},
+	{
+        	"type": 1,
+		"image" : "https://www.verdehomes.com.au/wp-content/uploads/2017/11/default_bio_600x600.jpg",
+        	"text": "Hello! Good Afternoon!"
+    	},
+	]
     }
     componentDidMount() {
         this.socket.subscribeToMessages((data) => {
@@ -55,10 +90,17 @@ class App extends Component {
                     onKeyPress={this.onKeyPress}
                     onChange={e => this.setState({ text: e.target.value })}/>
             </form>
+
+            {this.state.conversation.messages.slice().reverse().map((value, index) => {
+            })}
+
             {this.state.conversation.messages.slice().reverse().map((value, index) => {
                   return <p key={index}><b>{value.sender.name}: </b>{value.text}</p>
             })}
+
+         <ChatBubble messages={this.state.messages}/>
           </div>
+
         );
     }
 }
