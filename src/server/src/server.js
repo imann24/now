@@ -5,7 +5,8 @@ const path = require('path');
 const app = express();
 const server = app.listen(port, () => console.log(`Listening on port ${port}`));
 const io = require('socket.io')(server);
-const clientDir = '../../client/build'
+const ChatRoom = require('./chat-room');
+const clientDir = '../../client/build';
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -34,6 +35,8 @@ if (process.env.NODE_ENV === 'production') {
 io.set("origins", "*:*");
 
 io.on('connection', socket => {
+     let chat = new ChatRoom();
+     socket.emit('slug', chat.slug);
      socket.on('chat', state => {
           socket.broadcast.emit('chat', state);
      });

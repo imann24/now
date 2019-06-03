@@ -45,8 +45,8 @@ class Sender {
     }
     equals(sender) {
         if(sender instanceof Sender) {
-            return this.name == sender.name &&
-                    this.id == sender.id;
+            return this.name === sender.name &&
+                    this.id === sender.id;
         }
         return false;
     }

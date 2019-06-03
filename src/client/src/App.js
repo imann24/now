@@ -19,8 +19,8 @@ class App extends Component {
         });
     }
     onKeyPress = event => {
-         if (event.key == " ") {
-              if (this.state.text == " ") {
+         if (event.key === " ") {
+              if (this.state.text === " ") {
                    this.setState({text: ""})
               } else {
                    this.handleSubmit();
