@@ -27,7 +27,6 @@
     "proxy": "http://localhost:5000",
     "homepage": "https://chat-app-now.herokuapp.com",
     "devDependencies": {
-        "sinon": "^7.3.1",
-        "fsevents": "^1.2.4"
+        "sinon": "^7.3.1"
     }
 }
