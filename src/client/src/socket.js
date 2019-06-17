@@ -6,18 +6,35 @@ const SLUG_EVENT = 'slug';
 class Socket {
     constructor() {
         this.socket = io();
-        this.slug = null;
+        let currentPath = document.location.pathname;
+        this.slug = currentPath === "/" ? null : currentPath;
+        this.registeredHandlers = [];
+        this.unregisteredHandlers = [];
+        if (this.slug) {
+            this.socket.emit("change-slug", this.slug);
+            return;
+        }
+        let that = this;
         this.socket.on(SLUG_EVENT, function(data) {
-             this.slug = data;
-             window.history.pushState("chat", "My Chat", "/" + this.slug);
+             that.slug = data;
+             window.history.pushState("chat", "My Chat", "/" + that.slug);
+             that.unregisteredHandlers.forEach((h) => {
+                 this.on(that.slug + CHAT_EVENT, h);
+             });
+             that.registeredHandlers = that.registeredHandlers.concat(that.unregisteredHandlers);
+             that.unregisteredHandlers = [];
         });
-        console.log("CREATING SOCKET");
     };
     sendMessage(message) {
-        this.socket.emit(CHAT_EVENT, message);
+        this.socket.emit(this.slug + CHAT_EVENT, message);
     };
     subscribeToMessages(handler) {
-        this.socket.on(CHAT_EVENT, handler);
+        if (this.slug) {
+            this.registeredHandlers.push(handler);
+            this.socket.on(this.slug + CHAT_EVENT, handler);
+        } else {
+            this.unregisteredHandlers.push(handler);
+        }
     }
 }
 

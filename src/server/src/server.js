@@ -37,7 +37,13 @@ io.set("origins", "*:*");
 io.on('connection', socket => {
      let chat = new ChatRoom();
      socket.emit('slug', chat.slug);
-     socket.on('chat', state => {
-          socket.broadcast.emit('chat', state);
+     socket.on('change-slug', newSlug => {
+         chat.slug = newSlug;
+         socket.on(chat.slug + 'chat', state => {
+              socket.broadcast.emit(chat.slug + 'chat', state);
+         });
+     })
+     socket.on(chat.slug + 'chat', state => {
+          socket.broadcast.emit(chat.slug + 'chat', state);
      });
 });
