@@ -32,7 +32,7 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-io.set("origins", "*:*");
+io.set('origins', '*:*');
 
 io.on('connection', socket => {
      let chat = new ChatRoom();

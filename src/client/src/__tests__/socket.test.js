@@ -9,16 +9,18 @@ it('creates a socket instance', () => {
 });
 
 it('sends a message through socket.io', () => {
+    const slug = 'SLUG';
     const socket = new Socket();
     const ioSpy = sinon.spy(socket.socket, 'emit');
     const message = 'Test Message';
+    socket.slug = slug;
 
     socket.sendMessage(message);
 
-    expect(ioSpy.withArgs('chat', message).called).toBe(true);
+    expect(ioSpy.withArgs(slug + 'chat', message).called).toBe(true);
 });
 
-it('can subscribe handlers', () => {
+it('can subscribe before receiving slug', () => {
     const socket = new Socket();
     const handler = function(message) {
         console.log(message);
@@ -27,7 +29,27 @@ it('can subscribe handlers', () => {
 
     socket.subscribeToMessages(handler);
 
-    expect(ioSpy.withArgs('chat', handler).called).toBe(true);
+    expect(ioSpy.withArgs(sinon.match.any, handler).called).toBe(false);
+    expect(socket.unregisteredHandlers).toEqual(
+        expect.arrayContaining([handler])
+    );
+});
+
+it('can subscribe handlers after receiving slug', () => {
+    const slug = 'abcd1';
+    const socket = new Socket();
+    const handler = function(message) {
+        console.log(message);
+    }
+    const ioSpy = sinon.spy(socket.socket, 'on');
+    socket.slug = slug;
+
+    socket.subscribeToMessages(handler);
+
+    expect(ioSpy.withArgs(slug + 'chat', handler).called).toBe(true);
+    expect(socket.registeredHandlers).toEqual(
+        expect.arrayContaining([handler])
+    );
 });
 
 it('forwards received messages to handlers', () => {
@@ -37,6 +59,7 @@ it('forwards received messages to handlers', () => {
     const handler = sinon.spy(function(message) {
         expect(message).toBe(expectedMessage);
     });
+    socket.slug = '1234';
 
     socket.subscribeToMessages(handler);
     ioStub.callArgWith(1, expectedMessage);

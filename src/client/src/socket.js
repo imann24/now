@@ -7,17 +7,17 @@ class Socket {
     constructor() {
         this.socket = io();
         let currentPath = document.location.pathname;
-        this.slug = currentPath === "/" ? null : currentPath;
+        this.slug = currentPath === '/' ? null : currentPath;
         this.registeredHandlers = [];
         this.unregisteredHandlers = [];
         if (this.slug) {
-            this.socket.emit("change-slug", this.slug);
+            this.socket.emit('change-slug', this.slug);
             return;
         }
         let that = this;
         this.socket.on(SLUG_EVENT, function(data) {
              that.slug = data;
-             window.history.pushState("chat", "My Chat", "/" + that.slug);
+             window.history.pushState('chat', 'My Chat', '/' + that.slug);
              that.unregisteredHandlers.forEach((h) => {
                  this.on(that.slug + CHAT_EVENT, h);
              });
