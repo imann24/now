@@ -7,6 +7,8 @@ const server = app.listen(port, () => console.log(`Listening on port ${port}`));
 const io = require('socket.io')(server);
 const ChatRoom = require('./chat-room');
 const clientDir = '../../client/build';
+const rooms = {};
+const debugMode = false;
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -37,13 +39,26 @@ io.set('origins', '*:*');
 io.on('connection', socket => {
      let chat = new ChatRoom();
      socket.emit('slug', chat.slug);
-     socket.on('change-slug', newSlug => {
-         chat.slug = newSlug;
+     rooms[chat.slug] = [socket.id];
+     socket.on('change-slug', slug => {
+         rooms[chat.slug] = rooms[chat.slug].filter(id => {
+             return id !== socket.id;
+         });
+         if(!rooms[chat.slug].length) {
+             delete rooms[chat.slug];
+         }
+         chat.slug = slug;
+         if(!rooms[slug]) {
+             rooms[slug] = [];
+         }
+         rooms[slug].push(socket.id);
          socket.on(chat.slug + 'chat', state => {
               socket.broadcast.emit(chat.slug + 'chat', state);
          });
+         if (debugMode) console.log(rooms);
      })
      socket.on(chat.slug + 'chat', state => {
           socket.broadcast.emit(chat.slug + 'chat', state);
      });
+     if (debugMode) console.log(rooms);
 });

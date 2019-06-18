@@ -8,7 +8,7 @@ class App extends Component {
     socket = new Socket()
     state = {
         text: '',
-        user: new Sender(prompt("What's your name?")),
+        user: new Sender(prompt('What\'s your name?')),
         conversation: new Conversation(),
     }
     componentDidMount() {
@@ -17,11 +17,14 @@ class App extends Component {
                 state: previouState.conversation.addMessage(data)
             }));
         });
+        if (!this.state.user.name) {
+            this.setState({user: new Sender('Anonymous')});
+        }
     }
     onKeyPress = event => {
-         if (event.key === " ") {
-              if (this.state.text === " ") {
-                   this.setState({text: ""})
+         if (event.key === ' ') {
+              if (this.state.text === ' ') {
+                   this.setState({text: ''})
               } else {
                    this.handleSubmit();
               }
@@ -46,7 +49,7 @@ class App extends Component {
             </header>
             <form onSubmit={this.handleSubmit}>
                 <p>
-                    <strong>Say Something:</strong>
+                    <strong>Say Something, {this.state.user.name}:</strong>
                 </p>
                 <input
                     type="text"

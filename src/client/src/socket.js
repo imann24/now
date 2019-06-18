@@ -5,9 +5,9 @@ const SLUG_EVENT = 'slug';
 
 class Socket {
     constructor() {
-        this.socket = io();
-        let currentPath = document.location.pathname;
-        this.slug = currentPath === '/' ? null : currentPath;
+        this.socket = io(`ws://localhost:${process.env.PORT || '5000'}`,
+                         {transports: ['websocket']});
+        this.slug = document.location.pathname.replace("/", "");
         this.registeredHandlers = [];
         this.unregisteredHandlers = [];
         if (this.slug) {
