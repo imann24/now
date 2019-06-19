@@ -5,7 +5,7 @@ import Socket from './socket'
 import {Conversation, Message, Sender} from './message'
 
 class App extends Component {
-    socket = new Socket()
+    socket = new Socket(document.location.pathname.replace('/', ''))
     state = {
         text: '',
         user: new Sender(prompt('What\'s your name?')),

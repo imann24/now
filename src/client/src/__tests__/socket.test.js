@@ -1,4 +1,5 @@
 import sinon from 'sinon';
+import io from 'socket.io-client';
 
 import Socket from '../socket'
 
@@ -65,4 +66,24 @@ it('forwards received messages to handlers', () => {
     ioStub.callArgWith(1, expectedMessage);
 
     expect(handler.withArgs(expectedMessage).called).toBe(true);
+});
+
+it('fires change slug if slug is preset', () => {
+    const ioSocket = io();
+    const ioSpy = sinon.spy(ioSocket, 'emit');
+    const presetSlug = 'SLUGGY';
+
+    const socket = new Socket(presetSlug, ioSocket);
+
+    expect(ioSpy.withArgs('change-slug', presetSlug).called).toBe(true);
+});
+
+it('does not fire change slug on slug as empty string', () => {
+    const ioSocket = io();
+    const ioSpy = sinon.spy(ioSocket, 'emit');
+
+    const socket = new Socket('', ioSocket);
+
+    expect(ioSpy.withArgs('change-slug',
+                          sinon.match.any).called).toBe(false);
 });

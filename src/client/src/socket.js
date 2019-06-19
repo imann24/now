@@ -4,10 +4,11 @@ const CHAT_EVENT = 'chat';
 const SLUG_EVENT = 'slug';
 
 class Socket {
-    constructor() {
-        this.socket = io(`ws://localhost:${process.env.PORT || '5000'}`,
-                         {transports: ['websocket']});
-        this.slug = document.location.pathname.replace("/", "");
+    constructor(presetSlug, ioSocket) {
+        this.socket = ioSocket || io(
+            `ws://localhost:${process.env.PORT || '5000'}`,
+            {transports: ['websocket']});
+        this.slug = presetSlug;
         this.registeredHandlers = [];
         this.unregisteredHandlers = [];
         if (this.slug) {
