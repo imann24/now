@@ -9,7 +9,6 @@ const ChatRoom = require('./chat-room');
 const clientDir = '../../client/build';
 const rooms = {};
 const debugMode = false;
-
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -62,3 +61,7 @@ io.on('connection', socket => {
      });
      if (debugMode) console.log(rooms);
 });
+
+exports.shutdown = function() {
+    server.shutDown();
+};

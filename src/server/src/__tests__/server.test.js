@@ -1,3 +1,3 @@
 it('can create a server', () => {
-    console.log("Test not yet implemented");
+    // TODO: implement server tests (need a way to shutdown server after each test)
 });
