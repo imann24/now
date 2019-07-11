@@ -25,7 +25,7 @@ it('can subscribe before receiving slug', () => {
     const socket = new Socket();
     const handler = function(message) {
         console.log(message);
-    }
+    };
     const ioSpy = sinon.spy(socket.socket, 'on');
 
     socket.subscribeToMessages(handler);
@@ -41,7 +41,7 @@ it('can subscribe handlers after receiving slug', () => {
     const socket = new Socket();
     const handler = function(message) {
         console.log(message);
-    }
+    };
     const ioSpy = sinon.spy(socket.socket, 'on');
     socket.slug = slug;
 
@@ -86,4 +86,58 @@ it('does not fire change slug on slug as empty string', () => {
 
     expect(ioSpy.withArgs('change-slug',
                           sinon.match.any).called).toBe(false);
+});
+
+it('updates the slug on the slug event', () => {
+    const ioSocket = io();
+    const ioStub = sinon.stub(ioSocket, 'on');
+    const socket = new Socket('', ioSocket);
+    const newSlug = 'NEW_SLUG';
+
+    ioStub.callArgWith(1, newSlug);
+
+    expect(socket.slug).toEqual(newSlug);
+});
+
+it('updates the message name of a handler on slug change', () => {
+    const ioSocket = io();
+    const ioSpy = sinon.spy(ioSocket, 'on');
+    const socket = new Socket('', ioSocket);
+    const newSlug = 'NEW_SLUG';
+    const handler = function(message) {
+        console.log(message);
+    };
+    socket.subscribeToMessages(handler);
+
+    ioSpy.callArgWith(1, newSlug);
+
+    expect(socket.slug).toEqual(newSlug);
+    expect(ioSpy.withArgs(newSlug + 'chat', handler).called).toBe(true);
+    expect(socket.registeredHandlers).toEqual(
+        expect.arrayContaining([handler])
+    );
+});
+
+it('updates the message name for mulitple handlers on slug change', () => {
+    const ioSocket = io();
+    const ioSpy = sinon.spy(ioSocket, 'on');
+    const socket = new Socket('', ioSocket);
+    const newSlug = 'NEW_SLUG';
+    const handler1 = function(message) {
+        console.log(message);
+    };
+    const handler2 = function(message) {
+        console.info(message);
+    };
+    socket.subscribeToMessages(handler1);
+    socket.subscribeToMessages(handler2);
+
+    ioSpy.callArgWith(1, newSlug);
+
+    expect(socket.slug).toEqual(newSlug);
+    expect(ioSpy.withArgs(newSlug + 'chat', handler1).called).toBe(true);
+    expect(ioSpy.withArgs(newSlug + 'chat', handler2).called).toBe(true);
+    expect(socket.registeredHandlers).toEqual(
+        expect.arrayContaining([handler1, handler2])
+    );
 });

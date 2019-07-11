@@ -20,7 +20,7 @@ class Socket {
              that.slug = data;
              window.history.pushState('chat', 'My Chat', '/' + that.slug);
              that.unregisteredHandlers.forEach((h) => {
-                 this.on(that.slug + CHAT_EVENT, h);
+                 that.socket.on(that.slug + CHAT_EVENT, h);
              });
              that.registeredHandlers = that.registeredHandlers.concat(that.unregisteredHandlers);
              that.unregisteredHandlers = [];
