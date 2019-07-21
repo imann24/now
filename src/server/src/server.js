@@ -62,6 +62,6 @@ io.on('connection', socket => {
      if (debugMode) console.log(rooms);
 });
 
-exports.shutdown = function() {
-    server.shutDown();
+exports.shutDown = function() {
+    server.close();
 };

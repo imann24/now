@@ -1,3 +1,14 @@
+// TODO: fully mock out socket.io behavior in server
+// --> jest.mock('socket.io');
+
 it('can create a server', () => {
-    // TODO: implement server tests (need a way to shutdown server after each test)
+    let server;
+    try {
+        server = require('../server');
+        expect(server).toBeTruthy();
+    } finally {
+        if (server) {
+            server.shutDown();
+        }
+    }
 });
