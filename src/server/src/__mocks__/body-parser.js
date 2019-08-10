@@ -1,5 +1,3 @@
-require('jest');
-
 const bodyParserMock = jest.genMockFromModule('body-parser');
 
 bodyParserMock.json = jest.fn();

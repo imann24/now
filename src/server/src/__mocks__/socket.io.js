@@ -1,5 +1,3 @@
-require('jest');
-
 const socketIOInstanceMock = jest.genMockFromModule('socket.io');
 const socketIOModuleMock = jest.fn(() => socketIOInstanceMock);
 

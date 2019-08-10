@@ -13,10 +13,17 @@
           "test-server": "cd src/server && npm test",
           "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
           "test": "concurrently --success all \"npm run test-server\" \"npm run test-client\"",
-          "heroku-postbuild": "cd src/client && npm run build"
+          "heroku-postbuild": "cd src/client && npm run build",
+          "lint": "eslint . --ignore-pattern node_modules"
      },
      "devDependencies": {
           "concurrently": "^4.0.1",
+          "eslint": "^6.1.0",
+          "eslint-config-standard": "^13.0.1",
+          "eslint-plugin-flowtype": "^4.2.0",
+          "eslint-plugin-import": "^2.18.2",
+          "eslint-plugin-jsx-a11y": "^6.2.3",
+          "eslint-plugin-react": "^7.14.3",
           "recursive-install": "^1.4.0"
      }
 }

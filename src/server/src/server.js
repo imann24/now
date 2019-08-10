@@ -28,24 +28,20 @@ io.on('connection', socket => {
      socket.emit('slug', chat.slug);
      rooms[chat.slug] = [socket.id];
      socket.on('change-slug', (slug) => {
-         slug = slug.toString();
          rooms[chat.slug] = rooms[chat.slug].filter((id) => {
              return id !== socket.id;
          });
          if(!rooms[chat.slug].length) {
              delete rooms[chat.slug];
          }
-         chat.slug = slug;
-         if(!rooms[slug] || typeof(rooms[slug])) {
-             rooms[slug] = [];
+         chat.slug = slug.toString();
+         if(!rooms[slug.toString()]) {
+             rooms[slug.toString()] = [];
          }
          rooms[slug].push(socket.id);
          socket.on(chat.slug + 'chat', (state) => {
               socket.broadcast.emit(chat.slug + 'chat', state);
          });
-         if (debugMode) {
-             console.log(rooms);
-         }
      });
      socket.on(chat.slug + 'chat', (state) => {
           socket.broadcast.emit(chat.slug + 'chat', state);

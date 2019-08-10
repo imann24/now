@@ -75,6 +75,7 @@ it('fires change slug if slug is preset', () => {
 
     const socket = new Socket(presetSlug, ioSocket);
 
+    expect(socket).toBeTruthy();
     expect(ioSpy.withArgs('change-slug', presetSlug).called).toBe(true);
 });
 
@@ -84,6 +85,7 @@ it('does not fire change slug on slug as empty string', () => {
 
     const socket = new Socket('', ioSocket);
 
+    expect(socket).toBeTruthy();
     expect(ioSpy.withArgs('change-slug',
                           sinon.match.any).called).toBe(false);
 });
