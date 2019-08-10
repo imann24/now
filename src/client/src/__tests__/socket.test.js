@@ -127,7 +127,7 @@ it('updates the message name for mulitple handlers on slug change', () => {
         console.log(message);
     };
     const handler2 = function(message) {
-        console.info(message);
+        console.log(message);
     };
     socket.subscribeToMessages(handler1);
     socket.subscribeToMessages(handler2);

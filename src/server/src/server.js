@@ -27,27 +27,32 @@ io.on('connection', socket => {
      let chat = new ChatRoom();
      socket.emit('slug', chat.slug);
      rooms[chat.slug] = [socket.id];
-     socket.on('change-slug', slug => {
-         rooms[chat.slug] = rooms[chat.slug].filter(id => {
+     socket.on('change-slug', (slug) => {
+         slug = slug.toString();
+         rooms[chat.slug] = rooms[chat.slug].filter((id) => {
              return id !== socket.id;
          });
          if(!rooms[chat.slug].length) {
              delete rooms[chat.slug];
          }
          chat.slug = slug;
-         if(!rooms[slug]) {
+         if(!rooms[slug] || typeof(rooms[slug])) {
              rooms[slug] = [];
          }
          rooms[slug].push(socket.id);
-         socket.on(chat.slug + 'chat', state => {
+         socket.on(chat.slug + 'chat', (state) => {
               socket.broadcast.emit(chat.slug + 'chat', state);
          });
-         if (debugMode) console.log(rooms);
-     })
-     socket.on(chat.slug + 'chat', state => {
+         if (debugMode) {
+             console.log(rooms);
+         }
+     });
+     socket.on(chat.slug + 'chat', (state) => {
           socket.broadcast.emit(chat.slug + 'chat', state);
      });
-     if (debugMode) console.log(rooms);
+     if (debugMode) {
+         console.log(rooms);
+     }
 });
 
 exports.shutDown = function() {

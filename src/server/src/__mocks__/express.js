@@ -1,3 +1,5 @@
+require('jest');
+
 const appMock = jest.genMockFromModule('express');
 const expressModuleMock = jest.fn(() => appMock);
 const serverMock = jest.mock();
