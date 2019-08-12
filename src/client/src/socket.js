@@ -6,7 +6,7 @@ const SLUG_EVENT = 'slug';
 class Socket {
     constructor(presetSlug, ioSocket) {
         this.socket = ioSocket || io(
-            `ws://localhost:${process.env.PORT || '5000'}`,
+            `ws://${window.location.hostname}:${process.env.PORT || '5000'}`,
             {transports: ['websocket']});
         this.slug = presetSlug;
         this.registeredHandlers = [];
