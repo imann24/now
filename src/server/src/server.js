@@ -5,22 +5,12 @@ const path = require('path');
 const app = express();
 const server = app.listen(port, () => console.log(`Listening on port ${port}`));
 const io = require('socket.io')(server);
-const clientDir = '../../client/build'
-
+const ChatRoom = require('./chat-room');
+const clientDir = '../../client/build';
+const rooms = {};
+const debugMode = false;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-// API calls
-app.get('/api/hello', (req, res) => {
-    res.send({ express: 'Hello From Express' });
-});
-
-app.post('/api/world', (req, res) => {
-    console.log(req.body);
-    res.send(
-        `I received your POST request. This is what you sent me: ${req.body.post}`,
-    );
-});
 
 if (process.env.NODE_ENV === 'production') {
     // Serve any static files
@@ -31,10 +21,36 @@ if (process.env.NODE_ENV === 'production') {
     });
 }
 
-io.set("origins", "*:*");
+io.set('origins', '*:*');
 
 io.on('connection', socket => {
-     socket.on('chat', state => {
-          socket.broadcast.emit('chat', state);
+     let chat = new ChatRoom();
+     socket.emit('slug', chat.slug);
+     rooms[chat.slug] = [socket.id];
+     socket.on('change-slug', (slug) => {
+         rooms[chat.slug] = rooms[chat.slug].filter((id) => {
+             return id !== socket.id;
+         });
+         if(!rooms[chat.slug].length) {
+             delete rooms[chat.slug];
+         }
+         chat.slug = slug.toString();
+         if(!rooms[slug.toString()]) {
+             rooms[slug.toString()] = [];
+         }
+         rooms[slug].push(socket.id);
+         socket.on(chat.slug + 'chat', (state) => {
+              socket.broadcast.emit(chat.slug + 'chat', state);
+         });
      });
+     socket.on(chat.slug + 'chat', (state) => {
+          socket.broadcast.emit(chat.slug + 'chat', state);
+     });
+     if (debugMode) {
+         console.log(rooms);
+     }
 });
+
+exports.shutDown = function() {
+    server.close();
+};
