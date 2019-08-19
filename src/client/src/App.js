@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import Socket from './socket'
-import {Conversation, Message, Sender} from './message'
+import {Conversation, Msg, Sender} from './message'
+import { ChatFeed, Message, ChatBubbleProps } from 'react-chat-ui';
+
 
 class App extends Component {
     socket = new Socket(document.location.pathname.replace('/', ''))
@@ -22,23 +24,25 @@ class App extends Component {
         }
     }
     onKeyPress = event => {
-         if (event.key === ' ') {
-              if (this.state.text === ' ') {
-                   this.setState({text: ''});
-              } else {
-                   this.handleSubmit();
-              }
-         }
+         // if (event.key === ' ') {
+         //      if (this.state.text === ' ') {
+         //           this.setState({text: ''});
+         //      } else {
+         //           this.handleSubmit();
+         //      }
+         // }
+         this.handleSubmit();
     }
     handleSubmit = async e => {
         if (e) {
              e.preventDefault();
         }
-        let newMessage = new Message(this.state.user, this.state.text)
-        this.setState(previousState => ({
-            text: "",
-            conversation: previousState.conversation.addMessage(newMessage),
-        }));
+        // alert(this.state.text)
+        let newMessage = new Msg(this.state.user, this.state.text)
+        // this.setState(previousState => ({
+        //     text: "",
+        //     conversation: previousState.conversation.addMessage(newMessage),
+        // }));
         this.socket.sendMessage(newMessage);
     };
     render() {
@@ -47,6 +51,8 @@ class App extends Component {
             <header className="App-header">
               <img src={logo} className="App-logo" alt="logo" />
             </header>
+
+
             <form onSubmit={this.handleSubmit}>
                 <p>
                     <strong>Say Something, {this.state.user.name}:</strong>
@@ -55,12 +61,17 @@ class App extends Component {
                     type="text"
                     value={this.state.text}
                     onKeyPress={this.onKeyPress}
-                    onChange={e => this.setState({ text: e.target.value })}/>
+                    onChange={e => this.setState({ text: e.target.value },()=> console.log())}/>
             </form>
-            {this.state.conversation.messages.slice().reverse().map((value, index) => {
-                  return <p key={index}><b>{value.sender.name}: </b>{value.text}</p>
-            })}
-          </div>
+
+            <ChatFeed
+              messages={[new Message({id: 1,message: this.state.conversation.lastMessage.text,senderName:this.state.user.name}),
+                         new Message({id: 0,message: this.state.text,senderName:this.state.user.name})]}
+              showSenderName
+            />
+
+
+        </div>
         );
     }
 }

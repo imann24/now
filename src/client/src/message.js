@@ -11,24 +11,24 @@ class Conversation {
         if(this.messages.length) {
             return this.messages[this.messages.length - 1];
         }
-        return null;
+        return '';
     }
     addMessage(message) {
-        message = Object.assign(new Message(), message);
+        message = Object.assign(new Msg(), message);
         message.sender = Object.assign(new Sender(), message.sender);
         let newSender = message.sender;
         let lastMessage = this.lastMessage;
         // return this;
-        if (lastMessage && newSender.equals(lastMessage.sender)) {
-            lastMessage.concat(message);
-        } else {
+        // if (lastMessage && newSender.equals(lastMessage.sender)) {
+        //     lastMessage.concat(message);
+        // } else {
             this.messages.push(message);
-        }
+        //}
         return this;
     }
 }
 
-class Message {
+class Msg {
     constructor(sender, text) {
         this.sender = sender;
         this.text = text;
@@ -54,6 +54,6 @@ class Sender {
 
 export {
     Conversation,
-    Message,
+    Msg,
     Sender,
 }
