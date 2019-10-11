@@ -6,9 +6,11 @@ const app = express();
 const server = app.listen(port, () => console.log(`Listening on port ${port}`));
 const io = require('socket.io')(server);
 const ChatRoom = require('./chat-room');
+const SMSClient = require('./sms')
 const clientDir = '../../client/build';
 const rooms = {};
 const debugMode = false;
+const sms = new SMSClient();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -42,9 +44,17 @@ io.on('connection', socket => {
          socket.on(chat.slug + 'chat', (state) => {
               socket.broadcast.emit(chat.slug + 'chat', state);
          });
+         socket.on(chat.slug + 'invite', (contact) => {
+              sms.sendMessage(contact.number,
+                              `${contact.inviter} is inviting you to chat on Now @ ${contact.url}`);
+         });
      });
      socket.on(chat.slug + 'chat', (state) => {
           socket.broadcast.emit(chat.slug + 'chat', state);
+     });
+     socket.on(chat.slug + 'invite', (contact) => {
+          sms.sendMessage(contact.number,
+                          `${contact.inviter} is inviting you to chat on Now @ ${contact.url}`);
      });
      if (debugMode) {
          console.log(rooms);

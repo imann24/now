@@ -35,6 +35,12 @@ class Socket {
     sendMessage(message) {
         this.socket.emit(this.slug + CHAT_EVENT, message);
     };
+    inviteToChat(inviter, number) {
+        this.socket.emit(this.slug + 'invite',
+                         { inviter: inviter,
+                           number: number,
+                           url: window.location.href });
+    };
     subscribeToMessages(handler) {
         if (this.slug) {
             this.registeredHandlers.push(handler);
