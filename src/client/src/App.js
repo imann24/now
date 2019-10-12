@@ -3,7 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import Socket from './socket'
 import {Conversation, Msg, Sender} from './message'
-import { ChatFeed, Message, ChatBubbleProps } from 'react-chat-ui';
+import { ChatFeed, Message } from 'react-chat-ui';
 
 
 class App extends Component {
