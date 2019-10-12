@@ -1,4 +1,4 @@
-import {Conversation, Message, Sender} from '../message'
+import {Conversation, Msg, Sender} from '../message'
 
 describe('Conversation tests', () => {
     it('creates an empty array of messages', () => {
@@ -20,7 +20,7 @@ describe('Conversation tests', () => {
         conversation.addMessage(message);
 
         const receivedMessage = conversation.messages[0];
-        expect(receivedMessage).toBeInstanceOf(Message);
+        expect(receivedMessage).toBeInstanceOf(Msg);
         expect(receivedMessage.sender).toBeInstanceOf(Sender);
         expect(receivedMessage.text).toBe(message.text);
         expect(receivedMessage.sender.name).toBe(message.sender.name);
@@ -47,7 +47,7 @@ describe('Conversation tests', () => {
 
         const receivedMessage = conversation.messages[0];
         expect(conversation.length).toBe(1);
-        expect(receivedMessage).toBeInstanceOf(Message);
+        expect(receivedMessage).toBeInstanceOf(Msg);
         expect(receivedMessage.sender).toBeInstanceOf(Sender);
         expect(receivedMessage.text).toBe(firstMessage.text + secondMessage.text);
         expect(receivedMessage.sender.name).toBe(sender.name);
@@ -77,12 +77,12 @@ describe('Conversation tests', () => {
         const receivedMessageSender1 = conversation.messages[0];
         const receivedMessageSender2 = conversation.messages[1];
         expect(conversation.length).toBe(2);
-        expect(receivedMessageSender1).toBeInstanceOf(Message);
+        expect(receivedMessageSender1).toBeInstanceOf(Msg);
         expect(receivedMessageSender1.sender).toBeInstanceOf(Sender);
         expect(receivedMessageSender1.text).toBe(messageSender1.text);
         expect(receivedMessageSender1.sender.name).toBe(messageSender1.sender.name);
         expect(receivedMessageSender1.sender.id).toBe(messageSender1.sender.id);
-        expect(receivedMessageSender2).toBeInstanceOf(Message);
+        expect(receivedMessageSender2).toBeInstanceOf(Msg);
         expect(receivedMessageSender2.sender).toBeInstanceOf(Sender);
         expect(receivedMessageSender2.text).toBe(messageSender2.text);
         expect(receivedMessageSender2.sender.name).toBe(messageSender2.sender.name);
@@ -115,12 +115,12 @@ describe('Conversation tests', () => {
     });
 });
 
-describe('Message tests', () => {
+describe('Msg tests', () => {
     it('initializes correctly', () => {
         const sender = new Sender('NAME');
         const text = 'TEXT';
 
-        const message = new Message(sender, text);
+        const message = new Msg(sender, text);
 
         expect(message.sender).toBe(sender);
         expect(message.text).toBe(text);
@@ -129,10 +129,10 @@ describe('Message tests', () => {
     it('adds additional text', () => {
         const sender = new Sender('NAME');
         const text = 'TEXT';
-        const message = new Message(sender, text);
+        const message = new Msg(sender, text);
         const additionalText = 'MORE';
 
-        message.concat(new Message(sender, additionalText));
+        message.concat(new Msg(sender, additionalText));
 
         expect(message.text).toBe(text + additionalText);
     });
