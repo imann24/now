@@ -16,14 +16,9 @@ class Conversation {
     addMessage(message) {
         message = Object.assign(new Msg(), message);
         message.sender = Object.assign(new Sender(), message.sender);
-        let newSender = message.sender;
-        let lastMessage = this.lastMessage;
-        // return this;
-        // if (lastMessage && newSender.equals(lastMessage.sender)) {
-        //     lastMessage.concat(message);
-        // } else {
-            this.messages.push(message);
-        //}
+        // let newSender = message.sender;
+        // let lastMessage = this.lastMessage;
+        this.messages.push(message);
         return this;
     }
 }
