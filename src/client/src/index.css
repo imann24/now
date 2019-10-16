@@ -17,10 +17,15 @@ label {
     margin: 0.5vw;
 }
 
+#invite-modal {
+    min-width: 10em;
+    min-height: 5em;  
+}
+
 #invite-modal-header {
     margin-bottom: 2vh;
 }
 
 #invite-send-button {
-    margin: 1vw;
+    margin: auto;
 }

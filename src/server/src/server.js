@@ -25,6 +25,28 @@ if (process.env.NODE_ENV === 'production') {
 
 io.set('origins', '*:*');
 
+function updateMemberCount(socket, chat) {
+    socket.broadcast.emit(chat.slug + 'member-count', chat.memberCount());
+}
+
+function setupHandlers(socket, chat) {
+    socket.on(chat.slug + 'chat', (state) => {
+        socket.broadcast.emit(chat.slug + 'chat', state);
+    });
+    socket.on(chat.slug + 'invite', (contact) => {
+        sms.sendMessage(contact.number,
+                        `${contact.inviter} is inviting you to chat on Now @ ${contact.url}`);
+    });
+    socket.on(`${chat.slug}join`, (memberId) => {
+        chat.addMember(memberId);
+        updateMemberCount(socket, chat);
+    });
+    socket.on(`${chat.slug}leave`, (memberId) => {
+        chat.removeMember(memberId);
+        updateMemberCount(socket, chat);
+    });
+}
+
 io.on('connection', socket => {
      let chat = new ChatRoom();
      socket.emit('slug', chat.slug);
@@ -41,21 +63,9 @@ io.on('connection', socket => {
              rooms[slug.toString()] = [];
          }
          rooms[slug].push(socket.id);
-         socket.on(chat.slug + 'chat', (state) => {
-              socket.broadcast.emit(chat.slug + 'chat', state);
-         });
-         socket.on(chat.slug + 'invite', (contact) => {
-              sms.sendMessage(contact.number,
-                              `${contact.inviter} is inviting you to chat on Now @ ${contact.url}`);
-         });
+         setupHandlers(socket, chat);
      });
-     socket.on(chat.slug + 'chat', (state) => {
-          socket.broadcast.emit(chat.slug + 'chat', state);
-     });
-     socket.on(chat.slug + 'invite', (contact) => {
-          sms.sendMessage(contact.number,
-                          `${contact.inviter} is inviting you to chat on Now @ ${contact.url}`);
-     });
+     setupHandlers(socket, chat);
      if (debugMode) {
          console.log(rooms);
      }

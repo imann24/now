@@ -9,19 +9,32 @@ class Socket {
         this.slug = presetSlug;
         this.registeredHandlers = [];
         this.unregisteredHandlers = [];
+        this.memberCountHandlers = [];
+        this.readyHandlers = [];
+        this.isReady = false;
         if (this.slug) {
             this.socket.emit('change-slug', this.slug);
             return;
         }
         let that = this;
         this.socket.on(SLUG_EVENT, function(data) {
+            this.isReady = true;
              that.slug = data;
              window.history.pushState('chat', 'My Chat', '/' + that.slug);
              that.unregisteredHandlers.forEach((h) => {
                  that.socket.on(that.slug + CHAT_EVENT, h);
              });
+             this.readyHandlers.forEach((h) => {
+                h(); 
+             });
              that.registeredHandlers = that.registeredHandlers.concat(that.unregisteredHandlers);
              that.unregisteredHandlers = [];
+             that.socket.on(`${that.slug}member-count`, (count) => {
+                 alert(count);
+                 that.memberCountHandlers.forEach((h) => {
+                     h(count);
+                 });
+             });
         });
     };
     getSocketAddress() {
@@ -41,6 +54,19 @@ class Socket {
                            number: number,
                            url: window.location.href });
     };
+    onReady(handler) {
+        if(this.isReady) {
+            handler();
+        } else {
+            this.readyHandlers.push(handler);
+        }
+    };
+    join(userId) {
+        this.socket.emit(`${this.slug}join`, userId);
+    };
+    leave(userId) {
+        this.socket.emit(`${this.slug}leave`, userId);
+    };
     subscribeToMessages(handler) {
         if (this.slug) {
             this.registeredHandlers.push(handler);
@@ -48,7 +74,10 @@ class Socket {
         } else {
             this.unregisteredHandlers.push(handler);
         }
-    }
+    };
+    onMemberCountChange(memberCountHandler) {
+        this.memberCountHandlers.push(memberCountHandler);
+    };
 }
 
 export default Socket;

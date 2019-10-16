@@ -1,5 +1,10 @@
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 import React, { Component } from 'react';
 import Modal from 'react-modal';
+import Button from 'react-bootstrap/Button';
+import InputGroup from 'react-bootstrap/InputGroup';
+import FormControl from 'react-bootstrap/FormControl';
 import logo from './logo.svg';
 import './App.css';
 import Socket from './socket'
@@ -13,6 +18,7 @@ class App extends Component {
         numberToInvite: '',
         conversation: new Conversation(),
         shouldShowInviteModal: false,
+        memberCount: 1,
     }
     componentDidMount() {
         this.socket.subscribeToMessages((data) => {
@@ -23,6 +29,16 @@ class App extends Component {
         if (!this.state.user.name) {
             this.setState({user: new Sender('Anonymous')});
         }
+        this.socket.onReady(() => {
+            this.socket.join(this.state.user.id);
+        });
+        this.socket.onMemberCountChange((count) => {
+            alert(count);
+            this.setState({memberCount: count});
+        });
+    }
+    componentWillUnmount() {
+        this.socket.leave(this.state.user.id);
     }
     onKeyPress = event => {
          if (event.key === ' ') {
@@ -69,29 +85,43 @@ class App extends Component {
               <img src={logo} className='App-logo' alt='logo' />
             </header>
 
-            <Modal isOpen={this.state.shouldShowInviteModal}
+            <Modal id='invite-modal'
+                   isOpen={this.state.shouldShowInviteModal}
                    onRequestClose={this.hideInviteModal}
                    style={{
                        content: {
                            margin: 'auto',
-                           width: '25vw',
-                           height: '15vh' }}}
+                           width: '30vw',
+                           height: '22.5vh' }}}
                    contentLabel='Invite Modal'
                    ariaHideApp={false}>
                    <div id='invite-modal-header'>
                        <b>Invite a friend to chat with you...</b>
                    </div>
                    <div>
-                       <label>Phone</label>
-                       <input onChange={this.handleInviteNumberChange}></input>
+                       <InputGroup className="mb-3">
+                           <InputGroup.Prepend>
+                           <InputGroup.Text id="basic-addon1">Phone</InputGroup.Text>
+                           </InputGroup.Prepend>
+                           <FormControl placeholder="(000) 000-0000"
+                                        aria-label="(000) 000-0000"
+                                        aria-describedby="basic-addon1"
+                                        onChange={this.handleInviteNumberChange}/>
+                       </InputGroup>
                    </div>
                    <div>
-                       <button id='invite-send-button' onClick={(event) => {
+                       <Button id='invite-send-button'
+                               variant='primary'
+                               onClick={(event) => {
                            this.sendChatInvite();
-                           this.hideInviteModal(); }}>Send</button>
+                           this.hideInviteModal(); }}>Send</Button>
                    </div>
             </Modal>
-            <button onClick={this.showInviteModal}>Invite</button>
+
+            {this.state.memberCount < 2 &&
+                <Button variant='primary'
+                        onClick={this.showInviteModal}>Invite</Button>
+            }
 
             <form onSubmit={this.handleSubmit}>
                 <p>
