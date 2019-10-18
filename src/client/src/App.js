@@ -18,7 +18,6 @@ class App extends Component {
         numberToInvite: '',
         conversation: new Conversation(),
         shouldShowInviteModal: false,
-        memberCount: 1,
     }
     componentDidMount() {
         this.socket.subscribeToMessages((data) => {
@@ -29,16 +28,6 @@ class App extends Component {
         if (!this.state.user.name) {
             this.setState({user: new Sender('Anonymous')});
         }
-        this.socket.onReady(() => {
-            this.socket.join(this.state.user.id);
-        });
-        this.socket.onMemberCountChange((count) => {
-            alert(count);
-            this.setState({memberCount: count});
-        });
-    }
-    componentWillUnmount() {
-        this.socket.leave(this.state.user.id);
     }
     onKeyPress = event => {
          if (event.key === ' ') {
@@ -118,7 +107,9 @@ class App extends Component {
                    </div>
             </Modal>
 
-            {this.state.memberCount < 2 &&
+            {(this.state.conversation.length < 2 &&
+                (!this.state.conversation.lastMessage ||
+                 this.state.conversation.lastMessage.sender.id === this.state.user.id)) &&
                 <Button variant='primary'
                         onClick={this.showInviteModal}>Invite</Button>
             }
