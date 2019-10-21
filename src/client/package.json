@@ -4,6 +4,7 @@
     "private": true,
     "dependencies": {
         "bootstrap": "^4.3.1",
+        "enzyme-adapter-react-16": "^1.15.1",
         "react": "^16.8.6",
         "react-bootstrap": "^1.0.0-beta.14",
         "react-dom": "^16.8.6",
@@ -30,6 +31,7 @@
     "proxy": "http://localhost:5000",
     "homepage": "https://chat-app-now.herokuapp.com",
     "devDependencies": {
+        "enzyme": "^3.10.0",
         "sinon": "^7.3.1"
     }
 }

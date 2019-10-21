@@ -25,10 +25,6 @@ if (process.env.NODE_ENV === 'production') {
 
 io.set('origins', '*:*');
 
-function updateMemberCount(socket, chat) {
-    socket.broadcast.emit(chat.slug + 'member-count', chat.memberCount());
-}
-
 function setupHandlers(socket, chat) {
     socket.on(chat.slug + 'chat', (state) => {
         socket.broadcast.emit(chat.slug + 'chat', state);
@@ -36,14 +32,6 @@ function setupHandlers(socket, chat) {
     socket.on(chat.slug + 'invite', (contact) => {
         sms.sendMessage(contact.number,
                         `${contact.inviter} is inviting you to chat on Now @ ${contact.url}`);
-    });
-    socket.on(`${chat.slug}join`, (memberId) => {
-        chat.addMember(memberId);
-        updateMemberCount(socket, chat);
-    });
-    socket.on(`${chat.slug}leave`, (memberId) => {
-        chat.removeMember(memberId);
-        updateMemberCount(socket, chat);
     });
 }
 

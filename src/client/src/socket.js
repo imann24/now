@@ -9,7 +9,6 @@ class Socket {
         this.slug = presetSlug;
         this.registeredHandlers = [];
         this.unregisteredHandlers = [];
-        this.memberCountHandlers = [];
         if (this.slug) {
             this.socket.emit('change-slug', this.slug);
             return;
@@ -49,9 +48,6 @@ class Socket {
         } else {
             this.unregisteredHandlers.push(handler);
         }
-    };
-    onMemberCountChange(memberCountHandler) {
-        this.memberCountHandlers.push(memberCountHandler);
     };
 }
 

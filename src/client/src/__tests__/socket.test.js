@@ -21,6 +21,23 @@ it('sends a message through socket.io', () => {
     expect(ioSpy.withArgs(slug + 'chat', message).called).toBe(true);
 });
 
+it('sends an invite request through socket.io', () => {
+    const slug = 'SLUG';
+    const socket = new Socket();
+    const ioSpy = sinon.spy(socket.socket, 'emit');
+    const inviter = 'ME';
+    const number = '1234567890';
+    socket.slug = slug;
+
+    socket.inviteToChat(inviter, number);
+
+    expect(ioSpy.withArgs(slug + 'invite', {
+        inviter: inviter,
+        number: number,
+        url: window.location.href
+    }).called).toBe(true);
+});
+
 it('can subscribe before receiving slug', () => {
     const socket = new Socket();
     const handler = function(message) {

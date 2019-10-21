@@ -88,11 +88,12 @@ class App extends Component {
                        <b>Invite a friend to chat with you...</b>
                    </div>
                    <div>
-                       <InputGroup className="mb-3">
+                       <InputGroup className='mb-3'>
                            <InputGroup.Prepend>
                            <InputGroup.Text id="basic-addon1">Phone</InputGroup.Text>
                            </InputGroup.Prepend>
-                           <FormControl placeholder="(000) 000-0000"
+                           <FormControl id='number-invite-input'
+                                        placeholder="(000) 000-0000"
                                         aria-label="(000) 000-0000"
                                         aria-describedby="basic-addon1"
                                         onChange={this.handleInviteNumberChange}/>
@@ -110,7 +111,8 @@ class App extends Component {
             {(this.state.conversation.length < 2 &&
                 (!this.state.conversation.lastMessage ||
                  this.state.conversation.lastMessage.sender.id === this.state.user.id)) &&
-                <Button variant='primary'
+                <Button id='display-invite-modal-button'
+                        variant='primary'
                         onClick={this.showInviteModal}>Invite</Button>
             }
 
