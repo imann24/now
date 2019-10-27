@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import Socket from './socket'
+import SlugManager from './slug';
 import {Conversation, Message, Sender} from './message'
 
 class App extends Component {
@@ -10,6 +11,11 @@ class App extends Component {
         text: '',
         user: new Sender(prompt('What\'s your name?')),
         conversation: new Conversation(),
+        slugManager: new SlugManager(),
+        userCount: 1,
+    }
+    updateUserCount(count) {
+        this.setState({userCount: count});
     }
     componentDidMount() {
         this.socket.subscribeToMessages((data) => {
@@ -20,6 +26,13 @@ class App extends Component {
         if (!this.state.user.name) {
             this.setState({user: new Sender('Anonymous')});
         }
+        this.socket.handleUserCountChange((userCount) => {
+            this.updateUserCount(userCount);
+        })
+        this.socket.join(this.state.slugManager.currentSlug(), (welcomePackage) => {
+             this.state.slugManager.changeSlug(welcomePackage.slug);
+             this.updateUserCount(welcomePackage.userCount);
+        });
     }
     onKeyPress = event => {
          if (event.key === ' ') {
@@ -39,7 +52,7 @@ class App extends Component {
             text: "",
             conversation: previousState.conversation.addMessage(newMessage),
         }));
-        this.socket.sendMessage(newMessage);
+        this.socket.chat(newMessage);
     };
     render() {
         return (

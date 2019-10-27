@@ -10,7 +10,9 @@ const clientDir = '../../client/build';
 const rooms = {};
 const debugMode = false;
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 
 if (process.env.NODE_ENV === 'production') {
     // Serve any static files
@@ -23,32 +25,36 @@ if (process.env.NODE_ENV === 'production') {
 
 io.set('origins', '*:*');
 
+let chatRooms = {};
+function getRoom(currentSlug) {
+    if (!currentSlug || !chatRooms[currentSlug]) {
+        let chat = new ChatRoom();
+        if (currentSlug) {
+            chat.slug = currentSlug;
+        } else {
+            currentSlug = chat.slug;
+        }
+        chatRooms[chat.slug] = chat;
+    }
+    return chatRooms[currentSlug];
+}
+
 io.on('connection', socket => {
-     let chat = new ChatRoom();
-     socket.emit('slug', chat.slug);
-     rooms[chat.slug] = [socket.id];
-     socket.on('change-slug', (slug) => {
-         rooms[chat.slug] = rooms[chat.slug].filter((id) => {
-             return id !== socket.id;
-         });
-         if(!rooms[chat.slug].length) {
-             delete rooms[chat.slug];
-         }
-         chat.slug = slug.toString();
-         if(!rooms[slug.toString()]) {
-             rooms[slug.toString()] = [];
-         }
-         rooms[slug].push(socket.id);
-         socket.on(chat.slug + 'chat', (state) => {
-              socket.broadcast.emit(chat.slug + 'chat', state);
-         });
-     });
-     socket.on(chat.slug + 'chat', (state) => {
-          socket.broadcast.emit(chat.slug + 'chat', state);
-     });
-     if (debugMode) {
-         console.log(rooms);
-     }
+    let chatRoom;
+    socket.on('join', (state) => {
+        chatRoom = getRoom(state.slug);
+        socket.join(chatRoom.slug);
+        io.in(chatRoom.slug).clients((err, clients) => {
+            socket.emit('welcome', {
+                slug: chatRoom.slug,
+                userCount: clients.length
+            });
+            socket.to(chatRoom.slug).emit('user-count', clients.length);
+        });
+        socket.on('chat', (payload) => {
+            socket.to(chatRoom.slug).emit('chat', payload);
+        });
+    });
 });
 
 exports.shutDown = function() {
