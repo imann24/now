@@ -9,7 +9,9 @@ import { Sender } from '../message'
 let mockSocket = {
     subscribeToMessages: jest.fn(),
     sendMessage: jest.fn(),
-    inviteToChat: jest.fn()
+    inviteToChat: jest.fn(),
+    handleUserCountChange: jest.fn(),
+    join: jest.fn(),
 };
 jest.mock('../socket', () => {
     return jest.fn().mockImplementation(() => {

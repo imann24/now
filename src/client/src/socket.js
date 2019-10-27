@@ -1,27 +1,20 @@
 import io from 'socket.io-client';
 
 const CHAT_EVENT = 'chat';
-const SLUG_EVENT = 'slug';
 
 class Socket {
     constructor(presetSlug, ioSocket) {
-        this.socket = ioSocket || io(this.getSocketAddress(), {transports: ['websocket']});
-        this.slug = presetSlug;
-        this.registeredHandlers = [];
-        this.unregisteredHandlers = [];
-        if (this.slug) {
-            this.socket.emit('change-slug', this.slug);
-            return;
-        }
-        let that = this;
-        this.socket.on(SLUG_EVENT, function(data) {
-             that.slug = data;
-             window.history.pushState('chat', 'My Chat', '/' + that.slug);
-             that.unregisteredHandlers.forEach((h) => {
-                 that.socket.on(that.slug + CHAT_EVENT, h);
-             });
-             that.registeredHandlers = that.registeredHandlers.concat(that.unregisteredHandlers);
-             that.unregisteredHandlers = [];
+        this.socket = ioSocket || io(this.getSocketAddress(), {
+            transports: ['websocket']
+        });
+        this.messageHandlers = [];
+        this.socket.on(CHAT_EVENT, (message) => {
+            this.handleMessageReceived(message);
+        });
+    };
+    handleMessageReceived(message) {
+        this.messageHandlers.forEach((h) => {
+            h(message);
         });
     };
     getSocketAddress() {
@@ -32,22 +25,30 @@ class Socket {
         }
         return address;
     };
-    sendMessage(message) {
-        this.socket.emit(this.slug + CHAT_EVENT, message);
-    };
     inviteToChat(inviter, number) {
-        this.socket.emit(this.slug + 'invite',
-                         { inviter: inviter,
-                           number: number,
-                           url: window.location.href });
+        this.socket.emit('invite', {
+             inviter: inviter,
+             number: number,
+             url: window.location.href });
     };
     subscribeToMessages(handler) {
-        if (this.slug) {
-            this.registeredHandlers.push(handler);
-            this.socket.on(this.slug + CHAT_EVENT, handler);
-        } else {
-            this.unregisteredHandlers.push(handler);
-        }
+        this.messageHandlers.push(handler);
+    };
+    join(currentSlug, onWelcome) {
+        this.socket.on('welcome', (welcomePackage) => {
+            onWelcome(welcomePackage);
+        });
+        this.socket.emit('join', {
+            slug: currentSlug
+        });
+    };
+    handleUserCountChange(onUserCountChange) {
+        this.socket.on('user-count', (userCount) => {
+            onUserCountChange(userCount);
+        });
+    };
+    chat(message) {
+        this.socket.emit(CHAT_EVENT, message);
     };
 }
 

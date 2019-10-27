@@ -12,7 +12,9 @@ const rooms = {};
 const debugMode = false;
 const sms = new SMSClient();
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 
 if (process.env.NODE_ENV === 'production') {
     // Serve any static files
@@ -25,38 +27,40 @@ if (process.env.NODE_ENV === 'production') {
 
 io.set('origins', '*:*');
 
-function setupHandlers(socket, chat) {
-    socket.on(chat.slug + 'chat', (state) => {
-        socket.broadcast.emit(chat.slug + 'chat', state);
-    });
-    socket.on(chat.slug + 'invite', (contact) => {
-        sms.sendMessage(contact.number,
-                        `${contact.inviter} is inviting you to chat on Now @ ${contact.url}`);
-    });
+let chatRooms = {};
+function getRoom(currentSlug) {
+    if (!currentSlug || !chatRooms[currentSlug]) {
+        let chat = new ChatRoom();
+        if (currentSlug) {
+            chat.slug = currentSlug;
+        } else {
+            currentSlug = chat.slug;
+        }
+        chatRooms[chat.slug] = chat;
+    }
+    return chatRooms[currentSlug];
 }
 
 io.on('connection', socket => {
-     let chat = new ChatRoom();
-     socket.emit('slug', chat.slug);
-     rooms[chat.slug] = [socket.id];
-     socket.on('change-slug', (slug) => {
-         rooms[chat.slug] = rooms[chat.slug].filter((id) => {
-             return id !== socket.id;
-         });
-         if(!rooms[chat.slug].length) {
-             delete rooms[chat.slug];
-         }
-         chat.slug = slug.toString();
-         if(!rooms[slug.toString()]) {
-             rooms[slug.toString()] = [];
-         }
-         rooms[slug].push(socket.id);
-         setupHandlers(socket, chat);
-     });
-     setupHandlers(socket, chat);
-     if (debugMode) {
-         console.log(rooms);
-     }
+    let chatRoom;
+    socket.on('join', (state) => {
+        chatRoom = getRoom(state.slug);
+        socket.join(chatRoom.slug);
+        io.in(chatRoom.slug).clients((err, clients) => {
+            socket.emit('welcome', {
+                slug: chatRoom.slug,
+                userCount: clients.length
+            });
+            socket.to(chatRoom.slug).emit('user-count', clients.length);
+        });
+        socket.on('chat', (payload) => {
+            socket.to(chatRoom.slug).emit('chat', payload);
+        });
+        socket.on('invite', (contact) => {
+            sms.sendMessage(contact.number,
+                            `${contact.inviter} is inviting you to chat on Now @ ${contact.url}`);
+        });
+    });
 });
 
 exports.shutDown = function() {

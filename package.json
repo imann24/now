@@ -10,7 +10,7 @@
           "client": "cd src/client && npm start",
           "test-client": "cd src/client && npm test",
           "server": "cd src/server && npm start",
-          "server-dev": "cd src/server && npm run start-dev",
+          "server-dev": "cd src/server && npm run dev",
           "test-server": "cd src/server && npm test",
           "dev": "concurrently --kill-others-on-fail \"npm run server-dev\" \"npm run client\"",
           "test": "concurrently --success all \"npm run test-server\" \"npm run test-client\"",
