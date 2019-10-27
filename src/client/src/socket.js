@@ -25,7 +25,12 @@ class Socket {
         }
         return address;
     };
-
+    inviteToChat(inviter, number) {
+        this.socket.emit('invite', {
+             inviter: inviter,
+             number: number,
+             url: window.location.href });
+    };
     subscribeToMessages(handler) {
         this.messageHandlers.push(handler);
     };

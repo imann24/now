@@ -2,7 +2,9 @@
 A chat app with an eye for immediacy
 
 ## Setup
-`npm install`
+1. `npm install`
+1. Create an `.env` file at `src/server/.env` and populate with the correct credentials
+    1. _(accessible in Heroku)_
 
 ## Running
 1. `npm run dev` (run client and server)
