@@ -5,7 +5,6 @@ import Modal from 'react-modal';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
-import logo from './logo.svg';
 import './App.css';
 import Socket from './socket'
 import SlugManager from './slug';
@@ -84,7 +83,7 @@ class App extends Component {
         return (
           <div className='App'>
             <header className='App-header'>
-              <img src={logo} className='App-logo' alt='logo' />
+              <img src='/logo.png' className='App-logo' alt='logo' />
             </header>
 
             <Modal id='invite-modal'
