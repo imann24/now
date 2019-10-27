@@ -8,7 +8,9 @@ class Socket {
             transports: ['websocket']
         });
         this.messageHandlers = [];
-        this.socket.on(CHAT_EVENT, this.handleMessageReceived);
+        this.socket.on(CHAT_EVENT, (message) => {
+            this.handleMessageReceived(message);
+        });
     };
     handleMessageReceived(message) {
         this.messageHandlers.forEach((h) => {
